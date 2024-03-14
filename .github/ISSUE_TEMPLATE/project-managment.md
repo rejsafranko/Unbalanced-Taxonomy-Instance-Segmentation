@@ -1,4 +1,4 @@
 ### Project Managment<br>
 **TODO List**<br>
 1. Download TACO dataset.<br>
-2. Register TACO as a custom dataset in detectron2. 
+2. Run instance segmentation on TACO-10 with MaskRCNN. 

@@ -1,0 +1,4 @@
+tensorflow===2.16.1
+pillow===10.2.0
+pycocotools===2.0.7
+imgaug===0.4.0
