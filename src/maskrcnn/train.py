@@ -46,28 +46,27 @@ import random
 from imgaug import augmenters as iaa
 
 from taco.dataset import Taco
-import maskrcnn.model as modellib
-from maskrcnn.model import MaskRCNN
-from maskrcnn.config import Config
-
-import maskrcnn.visualize as visualize
-import maskrcnn.utils as utils
+import model as modellib
+from model import MaskRCNN
+from config import Config
+import visualize
+import utils
 import matplotlib.pyplot as plt
 
 from pycocotools.cocoeval import COCOeval
 from pycocotools import mask as maskUtils
 
-# Root directory of the models
+# Root directory of the models.
 ROOT_DIR = os.path.abspath("./models")
 
-# Path to trained weights file
+# Path to trained weights file.
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
-# Directory to save logs and model checkpoints
+# Directory to save logs and model checkpoints.
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
 ############################################################
-#  Testing functions
+#  Testing functions.
 ############################################################
 
 
@@ -96,7 +95,7 @@ def test_dataset(model, dataset, nr_images):
 
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 16))
 
-        # Display predictions
+        # Display predictions.
         visualize.display_instances(
             image,
             r["rois"],
@@ -119,7 +118,7 @@ def test_dataset(model, dataset, nr_images):
             ax=ax2,
         )
 
-        # # Display ground truth
+        # # Display ground truth.
         visualize.display_instances(
             image,
             gt_bbox,
@@ -130,24 +129,24 @@ def test_dataset(model, dataset, nr_images):
             ax=ax3,
         )
 
-        # Voilà
+        # Voilà.
         plt.show()
 
 
 ############################################################
-#  COCO Evaluation
+#  COCO Evaluation.
 ############################################################
 
 
 def build_coco_results(dataset, image_ids, rois, class_ids, scores, masks):
     """Arrange resutls to match COCO specs in http://cocodataset.org/#format"""
-    # If no results, return an empty list
+    # If no results, return an empty list.
     if rois is None:
         return []
 
     results = []
     for image_id in image_ids:
-        # Loop through detections
+        # Loop through detections.
         for i in range(rois.shape[0]):
             class_id = class_ids[i]
             score = scores[i]
@@ -175,10 +174,10 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
     eval_type: "bbox" or "segm" for bounding box or segmentation evaluation
     limit: if not 0, it's the number of images to use for evaluation
     """
-    # Pick TACO images from the dataset
+    # Pick TACO images from the dataset.
     image_ids = image_ids or dataset.image_ids
 
-    # Limit to a subset
+    # Limit to a subset.
     if limit:
         image_ids = image_ids[:limit]
 
@@ -189,10 +188,10 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
     t_start = time.time()
     results = []
     for i, image_id in enumerate(image_ids):
-        # Load image
+        # Load image.
         image = dataset.load_image(image_id)
 
-        # Run detection
+        # Run detection.
         t = time.time()
         r = model.detect([image], verbose=0)[0]
         # r = utils.fuse_instances(r)
@@ -203,8 +202,8 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
         else:
             scores = r["scores"] / (r["full_scores"][:, 0] + 0.0001)
 
-        # Convert results to COCO format
-        # Cast masks to uint8 because COCO tools errors out on bool
+        # Convert results to COCO format.
+        # Cast masks to uint8 because COCO tools errors out on bool.
         image_results = build_coco_results(
             dataset,
             taco_image_ids[i : i + 1],
@@ -220,7 +219,7 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
 
     # utils.compute_confusion_matrix(coco_results, coco)
 
-    # Evaluate
+    # Evaluate.
     cocoEval = COCOeval(coco, coco_results, eval_type)
     cocoEval.params.imgIds = taco_image_ids
     cocoEval.evaluate()
@@ -238,7 +237,7 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
 if __name__ == "__main__":
     import argparse
 
-    # Parse command line arguments
+    # Parse command line arguments.
     parser = argparse.ArgumentParser(description="Run Mask R-CNN on TACO.")
     parser.add_argument(
         "command", metavar="<command>", help="Opt: 'train', 'evaluate', 'test'"
@@ -274,7 +273,7 @@ if __name__ == "__main__":
     print("Dataset: ", args.dataset)
     print("Logs: ", DEFAULT_LOGS_DIR)
 
-    # Read map of target classes
+    # Read map of target classes.
     class_map = {}
     map_to_one_class = {}
     with open(args.class_map) as csvfile:
@@ -282,7 +281,7 @@ if __name__ == "__main__":
         class_map = {row[0]: row[1] for row in reader}
         map_to_one_class = {c: "Litter" for c in class_map}
 
-    # Load datasets
+    # Load datasets.
     if args.command == "train":
 
         # Training dataset.
@@ -297,14 +296,14 @@ if __name__ == "__main__":
         dataset_train.prepare()
         nr_classes = dataset_train.num_classes
 
-        # Validation dataset
+        # Validation dataset.
         dataset_val = Taco()
         dataset_val.load_taco(
             args.dataset, args.round, "val", class_map=class_map, auto_download=None
         )
         dataset_val.prepare()
     else:
-        # Test dataset
+        # Test dataset.
         dataset_test = Taco()
         taco = dataset_test.load_taco(
             args.dataset, args.round, "test", class_map=class_map, return_taco=True
@@ -312,7 +311,7 @@ if __name__ == "__main__":
         dataset_test.prepare()
         nr_classes = dataset_test.num_classes
 
-    # Configurations
+    # Configurations.
     if args.command == "train":
 
         class TacoTrainConfig(Config):
@@ -341,31 +340,30 @@ if __name__ == "__main__":
         config = TacoTestConfig()
     config.display()
 
-    # Create model
+    # Create model.
     if args.command == "train":
         model = MaskRCNN(mode="training", config=config, model_dir=DEFAULT_LOGS_DIR)
     else:
         model = MaskRCNN(mode="inference", config=config, model_dir=DEFAULT_LOGS_DIR)
 
-    # Select weights file to load
+    # Select weights file to load.
     if args.model.lower() == "coco":
         model_path = COCO_MODEL_PATH
-        # Download weights file
+        # Download weights file.
         if not os.path.exists(model_path):
             utils.download_trained_weights(model_path)
     elif args.model.lower() == "last":
-        # Find last trained weights
+        # Find last trained weights.
         model_path = model.find_last()[1]
     elif args.model.lower() == "imagenet":
-        # Start from ImageNet trained weights
+        # Start from ImageNet trained weights.
         model_path = model.get_imagenet_weights()
     else:
         _, model_path = model.get_last_checkpoint(args.model)
 
-    # Load weights
+    # Load weights.
     if args.model.lower() == "coco":
-        # Exclude the last layers because they require a matching
-        # number of classes
+        # Exclude the last layers because they require a matching number of classes.
         model.load_weights(
             model_path,
             None,
@@ -375,12 +373,12 @@ if __name__ == "__main__":
     else:
         model.load_weights(model_path, model_path, by_name=True)
 
-    # Train or evaluate
+    # Train or evaluate.
     if args.command == "train":
 
         if args.aug:
             if not config.USE_OBJECT_ZOOM:
-                # Image Augmentation Pipeline
+                # Image Augmentation Pipeline.
                 augmentation_pipeline = iaa.Sequential(
                     [
                         iaa.AdditiveGaussianNoise(scale=0.01 * 255, name="AWGN"),
@@ -398,7 +396,7 @@ if __name__ == "__main__":
                     random_order=True,
                 )
             else:
-                # Nevermind the image translation and scaling as this is done already during zoom in
+                # Nevermind the image translation and scaling as this is done already during zoom in.
                 augmentation_pipeline = iaa.Sequential(
                     [
                         iaa.AdditiveGaussianNoise(scale=0.01 * 255, name="AWGN"),
@@ -414,7 +412,7 @@ if __name__ == "__main__":
         else:
             augmentation_pipeline = None
 
-        # Save training meta to log dir
+        # Save training meta to log dir.
         training_meta = {
             "number of classes": nr_classes,
             "round": args.round,
@@ -435,7 +433,7 @@ if __name__ == "__main__":
         with open(train_meta_file, "w+") as f:
             f.write(json.dumps(training_meta))
 
-        # Training all layers
+        # Training all layers.
         model.train(
             dataset_train,
             dataset_val,
@@ -445,14 +443,14 @@ if __name__ == "__main__":
             augmentation=augmentation_pipeline,
         )
 
-        # Training last layers
-        # Finetune layers from ResNet stage 4 and up
+        # Training last layers.
+        # Finetune layers from ResNet stage 4 and up.
         # model.train(dataset_train, dataset_val,
         #             learning_rate=config.LEARNING_RATE,
         #             epochs=120,
         #             layers='4+')
 
-        # Training only heads
+        # Training only heads.
         # model.train(dataset_train, dataset_val,
         #             learning_rate=config.LEARNING_RATE / 10,
         #             epochs=160,
@@ -463,8 +461,8 @@ if __name__ == "__main__":
         print("Running COCO evaluation on {} images.".format(nr_eval_images))
         evaluate_coco(model, dataset_test, taco, "segm", limit=0)
 
-        # Binary problem (litter/not litter)
-        # dataset_test_binary = Taco()
+        # Binary problem (litter/not litter).
+        # dataset_test_binary = Taco().
         # taco_binary = dataset_test_binary.load_taco(args.dataset, args.round, "test", class_map=map_to_one_class, return_taco=True)
         # dataset_test_binary.prepare()
         # evaluate_coco(model, dataset_test_binary, taco_binary, "segm", limit=0)
