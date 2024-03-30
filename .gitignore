@@ -2,3 +2,6 @@ models/*
 !models/.gitkeep
 
 data/batch_*
+
+venv
+.python-version
