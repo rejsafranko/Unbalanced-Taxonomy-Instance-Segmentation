@@ -13,3 +13,4 @@ h5py==2.10.0
 imgaug==0.4.0
 PyWavelets===1.1.1
 IPython==7.20.0
+urllib3==1.25.11
