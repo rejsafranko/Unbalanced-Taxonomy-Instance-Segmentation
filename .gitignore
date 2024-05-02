@@ -1,7 +1,7 @@
 models/*
 !models/.gitkeep
 
-data/batch_*
+data/images
 
-venv
+env
 .python-version

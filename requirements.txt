@@ -1,2 +1,5 @@
 Pillow
 requests
+torch
+numpy
+git+https://github.com/facebookresearch/detectron2.git
