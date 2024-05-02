@@ -63,6 +63,8 @@ def main(args):
     cfg = configure_model(num_classes=args.num_classes)
     trainer = Trainer(cfg)
     trainer.train()
+    checkpointer = DetectionCheckpointer(trainer.model, save_dir="models/")
+    checkpointer.save(f"taco{args.num_classes}_maskrcnn")
 
 if __name__ == "__main__":
     args = parse_args()
