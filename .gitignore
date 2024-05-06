@@ -1,7 +1,11 @@
 models/*
 !models/.gitkeep
 
-data/images
+data/images/*
+data/binary_masks/*
+
+!data/images/.gitkeep
+!data/binary_masks/.gitkeep
 
 env
 .python-version
