@@ -31,30 +31,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def main(args) -> None:
-    """
-    Main function to generate masks for images in specified COCO format JSON annotations for train, validation, and test splits.
-
-    Args:
-        args (Namespace): Parsed command line arguments containing 'mask_dir' and 'ann_path'.
-    """
-    for split in ["train", "val", "test"]:
-        coco_split = COCO(args.ann_path + split + ".json")
-        image_ids = coco_split.getImgIds()
-        for image_id in image_ids:
-            img = coco_split.loadImgs(image_id)[0]
-            anns = load_annotations(imgIds=img["id"], coco=coco_split)
-            mask = generate_mask(
-                annotations=anns,
-                img_height=img["height"],
-                img_width=img["width"],
-                coco=coco_split,
-            )
-            save_mask(mask=mask, file_name=img["file_name"], mask_dir=args.mask_dir)
-
-        print(f"All {split} masks have been generated and saved.")
-
-
 def load_annotations(imgIds: int, coco: COCO, iscrowd=None) -> List[dict]:
     """
     Load annotations for a given image ID from a COCO dataset.
@@ -108,6 +84,30 @@ def save_mask(mask: np.ndarray, file_name: str, mask_dir: str) -> None:
     """
     mask_img = Image.fromarray((mask * 255).astype(np.uint8))
     mask_img.save(os.path.join(mask_dir, f"{file_name.split('.')[0]}_mask.png"))
+
+
+def main(args) -> None:
+    """
+    Main function to generate masks for images in specified COCO format JSON annotations for train, validation, and test splits.
+
+    Args:
+        args (Namespace): Parsed command line arguments containing 'mask_dir' and 'ann_path'.
+    """
+    for split in ["train", "val", "test"]:
+        coco_split = COCO(args.ann_path + split + ".json")
+        image_ids = coco_split.getImgIds()
+        for image_id in image_ids:
+            img = coco_split.loadImgs(image_id)[0]
+            anns = load_annotations(imgIds=img["id"], coco=coco_split)
+            mask = generate_mask(
+                annotations=anns,
+                img_height=img["height"],
+                img_width=img["width"],
+                coco=coco_split,
+            )
+            save_mask(mask=mask, file_name=img["file_name"], mask_dir=args.mask_dir)
+
+        print(f"All {split} masks have been generated and saved.")
 
 
 if __name__ == "__main__":
