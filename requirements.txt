@@ -2,4 +2,7 @@ Pillow
 requests
 torch
 numpy
+pycocotools
+coco-types
+matplotlib
 git+https://github.com/facebookresearch/detectron2.git
