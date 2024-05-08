@@ -5,7 +5,7 @@ from typing import List
 from PIL import Image
 import numpy as np
 from pycocotools.coco import COCO
-from coco_types.dicts.coco_object_detection import Annotation
+from coco_types.dicts import coco_object_detection
 
 
 def parse_args():
@@ -31,7 +31,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_annotations(imgIds: int, coco: COCO, iscrowd=None) -> List[dict]:
+def load_annotations(
+    imgIds: int, coco: COCO, iscrowd=None
+) -> List[coco_object_detection.Annotation]:
     """
     Load annotations for a given image ID from a COCO dataset.
 
@@ -49,7 +51,7 @@ def load_annotations(imgIds: int, coco: COCO, iscrowd=None) -> List[dict]:
 
 
 def generate_mask(
-    annotations: List[Annotation],
+    annotations: List[coco_object_detection.Annotation],
     img_height: int,
     img_width: int,
     coco: COCO,
@@ -67,8 +69,10 @@ def generate_mask(
         np.ndarray: Binary mask array where pixels of objects are 1 and others are 0.
     """
     mask = np.zeros((img_height, img_width))
+    
     for ann in annotations:
         mask += coco.annToMask(ann)
+    
     mask = mask.clip(max=1)
     return mask
 
@@ -96,6 +100,7 @@ def main(args) -> None:
     for split in ["train", "val", "test"]:
         coco_split = COCO(args.ann_path + split + ".json")
         image_ids = coco_split.getImgIds()
+        
         for image_id in image_ids:
             img = coco_split.loadImgs(image_id)[0]
             anns = load_annotations(imgIds=img["id"], coco=coco_split)
