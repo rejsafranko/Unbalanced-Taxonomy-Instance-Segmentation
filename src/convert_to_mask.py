@@ -32,7 +32,7 @@ def parse_args():
 
 
 def load_annotations(
-    imgIds: int, coco: COCO, iscrowd=None
+    imgId: int, catIds:int, coco: COCO, iscrowd=None
 ) -> List[coco_object_detection.Annotation]:
     """
     Load annotations for a given image ID from a COCO dataset.
@@ -45,7 +45,7 @@ def load_annotations(
     Returns:
         List[dict]: List of annotations.
     """
-    ann_ids = coco.getAnnIds(imgIds=imgIds, iscrowd=iscrowd)
+    ann_ids = coco.getAnnIds(imgIds=imgId, catIds=catIds, iscrowd=iscrowd)
     anns = coco.loadAnns(ann_ids)
     return anns
 
@@ -71,9 +71,12 @@ def generate_mask(
     mask = np.zeros((img_height, img_width))
     
     for ann in annotations:
-        mask += coco.annToMask(ann)
-    
-    mask = mask.clip(max=1)
+        try:
+            mask_ = coco.annToMask(ann)
+            mask += mask_
+        except ValueError as e:
+            print(f"Error adding masks: {e}\nNum. of annotations: {len(annotations)}\nMask shape: {mask_.shape}")
+
     return mask
 
 
@@ -86,8 +89,8 @@ def save_mask(mask: np.ndarray, file_name: str, mask_dir: str) -> None:
         file_name (str): Original image file name to base the mask's file name on.
         mask_dir (str): Directory where the mask image will be saved.
     """
-    mask_img = Image.fromarray((mask * 255).astype(np.uint8))
-    mask_img.save(os.path.join(mask_dir, f"{file_name.split('.')[0]}_mask.png"))
+    mask_img = Image.fromarray((mask).astype(np.uint8))
+    mask_img.save(os.path.join(mask_dir, f"{file_name.split('/')[1][:-4]}_mask.png"))
 
 
 def main(args) -> None:
@@ -99,19 +102,17 @@ def main(args) -> None:
     """
     for split in ["train", "val", "test"]:
         coco_split = COCO(args.ann_path + split + ".json")
-        image_ids = coco_split.getImgIds()
-        
-        for image_id in image_ids:
-            img = coco_split.loadImgs(image_id)[0]
-            anns = load_annotations(imgIds=img["id"], coco=coco_split)
+        cat_ids = coco_split.getCatIds()
+        images = coco_split.imgs
+        for img in images.values():
+            anns = load_annotations(imgId=img["id"], catIds=cat_ids, coco=coco_split)
             mask = generate_mask(
                 annotations=anns,
                 img_height=img["height"],
                 img_width=img["width"],
                 coco=coco_split,
             )
-            save_mask(mask=mask, file_name=img["file_name"], mask_dir=args.mask_dir)
-
+            save_mask(mask=mask, file_name=img["file_name"], mask_dir=args.mask_dir + split)
         print(f"All {split} masks have been generated and saved.")
 
 

@@ -1,11 +1,12 @@
-models/*
-!models/.gitkeep
+models/base/*
+!models/base/.gitkeep
+models/custom/*
+!models/custom/.gitkeep
 
 data/images/*
-data/binary_masks/*
-
 !data/images/.gitkeep
-!data/binary_masks/.gitkeep
+data/masks/*
+!data/masks/.gitkeep
 
 env
 .python-version
