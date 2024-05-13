@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+
 from detectron2.config import get_cfg
 from detectron2.data import build_detection_train_loader
 from detectron2.engine import DefaultTrainer
@@ -11,19 +12,12 @@ from mask2former import (
     add_maskformer2_config,
 )
 
+from Trainers import Mask2FormerTrainer
+
 def parse_args():
     pass
 
-class Trainer(DefaultTrainer):
-    """
-    Extension of the Trainer class adapted to MaskFormer.
-    """
-    @classmethod
-    def build_train_loader(cls, cfg):
-        if cfg.INPUT.DATASET_MAPPER_NAME == "mask_former_instance":
-            mapper = MaskFormerInstanceDatasetMapper(cfg, True)
-            return build_detection_train_loader(cfg, mapper=mapper)
-        
+
 def configure_model(config_file:str):
     """
     Create configs and perform basic setups.
@@ -38,7 +32,7 @@ def configure_model(config_file:str):
 
 def main(args):
     cfg = configure_model(args.config_file)
-    trainer = Trainer(cfg)
+    trainer = Mask2FormerTrainer(cfg)
     trainer.resume_or_load(resume=args.resume)
     trainer.train()
 

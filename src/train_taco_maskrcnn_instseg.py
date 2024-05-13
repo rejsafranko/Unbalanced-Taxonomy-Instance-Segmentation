@@ -13,7 +13,7 @@ import os
 import random
 
 # Custom imports.
-from Trainer import Trainer
+from Trainers import MaskRCNNTrainer
 
 setup_logger()
 
@@ -61,7 +61,7 @@ def configure_model(num_classes: int):
 def main(args):
     register_taco_dataset(data_dir_path=args.data_dir_path, mapping_id=args.mapping)
     cfg = configure_model(num_classes=args.num_classes)
-    trainer = Trainer(cfg)
+    trainer = MaskRCNNTrainer(cfg)
     trainer.train()
     checkpointer = DetectionCheckpointer(trainer.model, save_dir="models/")
     checkpointer.save(f"taco{args.num_classes}_maskrcnn")
