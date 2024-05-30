@@ -16,3 +16,8 @@ To set up the project, clone the repository and run the setup script:
 git clone https://github.com/yourusername/unbalanced-taxonomy-instance-segmentation.git
 cd unbalanced-taxonomy-instance-segmentation
 ./setup.sh
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
