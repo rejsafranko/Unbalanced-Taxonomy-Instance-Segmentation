@@ -1,4 +1,7 @@
 # Unbalanced Taxonomy Instance Segmentation
+[STILL IN DEVELOPMENT] ❗❗❗
+
+## Introduction
 
 This repository contains the code for a Master's thesis focusing on computer vision research, specifically targeting instance segmentation challenges. The project evaluates and enhances instance segmentation techniques on the TACO (Trash Annotation in Context) dataset using state-of-the-art computer vision models.
 
