@@ -5,8 +5,6 @@ models/custom/*
 
 data/images/*
 !data/images/.gitkeep
-data/masks/*
-!data/masks/.gitkeep
 
 env
 .python-version
