@@ -1,3 +1,4 @@
+original_class,new_class
 Aerosol,Can
 Aluminium foil,Other
 Battery,Other
@@ -34,13 +35,9 @@ Pizza box,Other
 Garbage bag,Plastic bag + wrapper
 Single-use carrier bag,Plastic bag + wrapper
 Polypropylene bag,Plastic bag + wrapper
-Produce bag,Plastic bag + wrapper
-Cereal bag,Plastic bag + wrapper
-Bread bag,Plastic bag + wrapper
 Plastic film,Plastic bag + wrapper
 Crisp packet,Plastic bag + wrapper
 Other plastic wrapper,Plastic bag + wrapper
-Retort pouch,Plastic bag + wrapper
 Spread tub,Other
 Tupperware,Other
 Disposable food container,Other
