@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(description="")
 parser.add_argument(
     "--dataset_path",
     required=False,
-    default="./data/annotations.json",
+    default="./data/annotations/annotations.json",
     help="Path to annotations",
 )
 args = parser.parse_args()
