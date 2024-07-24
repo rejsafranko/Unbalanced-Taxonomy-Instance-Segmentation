@@ -4,3 +4,5 @@ cd ..
 
 pip install -r requirements.txt
 pip install -e modules/detectron2
+
+source ./build_datasets.sh
