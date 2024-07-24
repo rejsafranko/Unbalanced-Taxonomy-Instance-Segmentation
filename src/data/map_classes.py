@@ -1,89 +1,76 @@
-"""
-
-Author: Pedro F. Proenza
-
-"""
-
 import argparse
-import copy
-import csv
 import json
-import os
+import pandas as pd
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_dir", type=str, required=True)
-    parser.add_argument("--subset", type=str, required=True)
-    parser.add_argument("--class_map_csv", type=str, required=True)
+    parser.add_argument("--annotation_path", type=str, required=True)
+    parser.add_argument("--mapping_path", type=str, required=True)
     return parser.parse_args()
 
 
-class Taco:
-    def load_taco(self, dataset_dir, subset, class_map_csv, round=0):
-        class_map = {}
-        # map_to_one_class = {}
-        with open(class_map_csv) as csvfile:
-            reader = csv.reader(csvfile)
-            class_map = {row[0]: row[1] for row in reader}
-            # map_to_one_class = {c: 'Litter' for c in class_map}
+def save_mapped_annotation(data, path: str) -> None:
+    save_path = path.split("/")
+    save_path = f"{save_path[0]}/mapped_{save_path[1]}"
+    with open(save_path, "w") as f:
+        json.dump(data, f, indent=4)
 
-        ann_filepath = os.path.join(dataset_dir, "annotations")
-        ann_filepath += "_" + str(round) + "_" + subset + ".json"
-        assert os.path.isfile(ann_filepath)
 
-        # Load dataset.
-        dataset = json.load(open(ann_filepath, "r"))
+def encode_target_classes(classes):
+    return {category: idx for idx, category in enumerate(classes)}
 
-        # Replace dataset original classes before calling the coco Constructor.
-        # Some classes may be assigned background to remove them from the dataset.
-        self.replace_dataset_classes(dataset, class_map)
 
-    def replace_dataset_classes(self, dataset, class_map):
-        """Replaces classes of dataset based on a dictionary"""
-        class_new_names = list(set(class_map.values()))
-        class_new_names.sort()
-        class_originals = copy.deepcopy(dataset["categories"])
-        dataset["categories"] = []
-        class_ids_map = {}  # map from old id to new id
+def encode_original_classes(data):
+    return {category["name"]: int(category["id"]) for category in data["categories"]}
 
-        # Assign background id 0.
-        has_background = False
-        if "Background" in class_new_names:
-            if class_new_names.index("Background") != 0:
-                class_new_names.remove("Background")
-                class_new_names.insert(0, "Background")
-            has_background = True
 
-        # Replace categories.
-        for id_new, class_new_name in enumerate(class_new_names):
-
-            # Make sure id:0 is reserved for background.
-            id_rectified = id_new
-            if not has_background:
-                id_rectified += 1
-
-            category = {
-                "supercategory": "",
-                "id": id_rectified,  # Background has id=0
-                "name": class_new_name,
+def create_target_categories(encoding):
+    categories = []
+    for category in encoding:
+        categories.append(
+            {
+                "id": encoding[category],
+                "name": category,
+                "supercategory": category,
             }
-            dataset["categories"].append(category)
-            # Map class names
-            for class_original in class_originals:
-                if class_map[class_original["name"]] == class_new_name:
-                    class_ids_map[class_original["id"]] = id_rectified
+        )
+    return categories
 
-        # Update annotations category id tag
-        for ann in dataset["annotations"]:
-            ann["category_id"] = class_ids_map[ann["category_id"]]
+
+def encode_class_mappings(mapping, encodings):
+    mapping["original_class"] = mapping["original_class"].map(encodings["original"])
+    mapping["new_class"] = mapping["new_class"].map(encodings["target"])
+    mapping = dict(zip(mapping["original_class"], mapping["new_class"]))
+    return mapping
+
+
+def map_taco_classes(taco_path: str, mapping_path: str):
+    class_mapping = pd.read_csv(mapping_path)
+
+    target_encoding = encode_target_classes(class_mapping["new_class"].unique())
+
+    target_categories = create_target_categories(target_encoding)
+
+    with open(taco_path, "r") as f:
+        taco_data = json.load(f)
+
+    original_encoding = encode_original_classes(taco_data)
+
+    taco_data["categories"] = target_categories
+
+    class_mapping = encode_class_mappings(
+        class_mapping, {"original": original_encoding, "target": target_encoding}
+    )
+
+    for annotation in taco_data["annotations"]:
+        annotation["category_id"] = class_mapping[annotation["category_id"]]
+
+    save_mapped_annotation(taco_data, taco_path)
 
 
 def main(args):
-    taco_client = Taco()
-    taco_client.load_taco(
-        dataset_dir=args.dataset_dir, subset=args.subset, class_map_csv=args.class_map_csv
-    )
+    map_taco_classes(args.annotation_path, args.mapping_path)
 
 
 if __name__ == "__main__":
