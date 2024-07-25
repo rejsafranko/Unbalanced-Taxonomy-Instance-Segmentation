@@ -1,6 +1,6 @@
 import os
-import detectron2 # type: ignore
-import mask2former # type: ignore
+import detectron2  # type: ignore
+import mask2former  # type: ignore
 
 
 class MaskRCNNTrainer(detectron2.engine.DefaultTrainer):
