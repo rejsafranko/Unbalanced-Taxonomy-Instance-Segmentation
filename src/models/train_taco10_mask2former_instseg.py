@@ -1,6 +1,6 @@
 import argparse
-import detectron2
-import mask2former
+import detectron2  # type: ignore
+import mask2former  # type: ignore
 
 from Trainers import Mask2FormerTrainer
 
