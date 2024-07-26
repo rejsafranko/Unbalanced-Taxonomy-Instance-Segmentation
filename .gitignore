@@ -6,5 +6,8 @@ models/custom/*
 data/images/*
 !data/images/.gitkeep
 
+modules/
+!modules/.gitkeep
+
 env
 .python-version
