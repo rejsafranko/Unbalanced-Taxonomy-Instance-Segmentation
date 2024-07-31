@@ -10,3 +10,4 @@ regex==2024.5.15
 tqdm==4.66.4
 torchvision==0.18.1
 pandas==2.2.2
+open_clip_torch==2.26.1
