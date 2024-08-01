@@ -11,3 +11,4 @@ tqdm==4.66.4
 torchvision==0.18.1
 pandas==2.2.2
 open_clip_torch==2.26.1
+scikit-learn==1.5.1
