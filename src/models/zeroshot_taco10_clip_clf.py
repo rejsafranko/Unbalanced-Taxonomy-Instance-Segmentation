@@ -57,7 +57,7 @@ def inference(
 
     for annotation in tqdm(data["annotations"]):
         image_id = annotation["image_id"]
-        image_path = f"/content/drive/MyDrive/instseg/data/images/{next((image for image in images if image['id'] == image_id), None)['file_name']}"
+        image_path = f"data/images/{next((image for image in images if image['id'] == image_id), None)['file_name']}"
         image_label = annotation["category_id"]
 
         image = preprocess(PIL.Image.open(image_path).convert("RGB")).unsqueeze(0)
