@@ -25,7 +25,7 @@ def parse_args():
 
 def prepare_text_prompts(path: str) -> Tuple[List[str], dict]:
     with open(path) as f:
-        data = json.load(path)
+        data = json.load(f)
 
     categories = {category["id"]: category["name"] for category in data["categories"]}
     return list(categories.values()), data
@@ -53,9 +53,11 @@ def inference(
     ground_truths = []
     predictions = []
 
+    images = data["images"]
+
     for annotation in tqdm(data["annotations"]):
         image_id = annotation["image_id"]
-        image_path = f"path/to/images/{image_id:012d}.jpg"
+        image_path = f"/content/drive/MyDrive/instseg/data/images/{next((image for image in images if image['id'] == image_id), None)['file_name']}"
         image_label = annotation["category_id"]
 
         image = preprocess(PIL.Image.open(image_path).convert("RGB")).unsqueeze(0)
@@ -77,7 +79,7 @@ def inference(
 
 def calculate_metrics(true_labels: List[int], predicted_labels: List[int]):
     accuracy = sklearn.metrics.accuracy_score(true_labels, predicted_labels)
-    print(f"Accuracy: {accuracy * 100:.2f}%")
+    print(f"\nAccuracy: {accuracy * 100:.2f}%")
 
 
 def main(args) -> None:
