@@ -1,6 +1,9 @@
 cd modules
 git clone "https://github.com/facebookresearch/detectron2.git"
 git clone "https://github.com/bytedance/fc-clip.git"
+cp fc-clip fcclip
+rm -rf fc-clip
+
 cd ..
 
 pip install -r requirements.txt
