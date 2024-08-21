@@ -1,7 +1,15 @@
 import argparse
 import pickle
+
+import fcclip
+
 import detectron2  # type: ignore
-from modules.fcclip.fcclip import FCCLIP
+import detectron2.engine  # type: ignore
+import detectron2.data # type: ignore
+import detectron2.evaluation  # type: ignore
+import detectron2.data  # type: ignore
+import detectron2.projects.deeplab # type: ignore
+from detectron2.evaluation import COCOEvaluator  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -12,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def register_coco_dataset(name, json_file, image_root):
+def register_coco_dataset(name, json_file, image_root) -> None:
     detectron2.data.DatasetCatalog.register(
         name,
         lambda: detectron2.data.datasets.load_coco_json(json_file, image_root, name),
@@ -35,14 +43,20 @@ def register_coco_dataset(name, json_file, image_root):
 
 def configure_model():
     cfg = detectron2.config.get_cfg()
-    cfg.merge_from_file("models/configs/fcclip_convnext_large_eval_coco.yaml")
-    cfg.MODEL.WEIGHTS = (
-        "https://drive.google.com/file/d/1tcB-8FNON-LwckXQbUyKcBA2G7TU65Zh/view"
+    detectron2.projects.deeplab.add_deeplab_config(cfg)
+    fcclip.add_maskformer2_config(cfg)
+    fcclip.add_fcclip_config(cfg)
+    cfg.merge_from_file(
+        "configs/coco/panoptic-segmentation/fcclip/fcclip_convnext_large_eval_coco.yaml"
     )
-    cfg.MODEL.FC_CLIP.TEST.INSTANCE_ON = True
+    cfg.MODEL.WEIGHTS = "/content/drive/MyDrive/instseg/fcclip_cocopan_r50.pth"
+    cfg.MODEL.MASK_FORMER.TEST.INSTANCE_ON = True
+    cfg.MODEL.MASK_FORMER.TEST.SEMANTIC_ON = False
+    cfg.MODEL.MASK_FORMER.TEST.PANOPTIC_ON = False
+    cfg.MODEL.SEM_SEG_HEAD.NUM_CLASSES = 10
     cfg.DATASETS.TEST = ("taco10_test",)
-    cfg.DATALOADER.NUM_WORKERS = 2
     cfg.MODEL.DEVICE = "cuda"
+    cfg.freeze()
     return cfg
 
 
@@ -54,13 +68,18 @@ def main(args):
     )
 
     cfg = configure_model()
-    model = FCCLIP(cfg)
-    model.eval()
-
     predictor = detectron2.engine.DefaultPredictor(cfg)
-    test_loader = detectron2.data.build_detectron_test_loader(cfg, "taco10_test")
+
+    detectron2.data.MetadataCatalog.get("taco10_test").set(
+        json_file=f"{args.data_path}mapped_annotations_0_test.json"
+    )
+    test_loader = detectron2.data.build_detection_test_loader(
+        cfg,
+        dataset_name="taco10_test",
+        mapper=fcclip.MaskFormerInstanceDatasetMapper(cfg, is_train=False),
+    )
     evaluator = detectron2.evaluation.COCOEvaluator(
-        "taco10_test", cfg, False, output_dir="logs/"
+        "taco10_test", output_dir="./output"
     )
     detectron2.evaluation.inference_on_dataset(predictor.model, test_loader, evaluator)
 

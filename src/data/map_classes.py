@@ -12,13 +12,13 @@ def parse_args() -> argparse.Namespace:
 
 def save_mapped_annotation(data, path: str) -> None:
     save_path = path.split("/")
-    save_path = f"{save_path[0]}/mapped_{save_path[1]}"
+    save_path = f"{save_path[0]}/{save_path[1]}/mapped_{save_path[2]}"
     with open(save_path, "w") as f:
         json.dump(data, f, indent=4)
 
 
 def encode_target_classes(classes):
-    return {category: idx for idx, category in enumerate(classes)}
+    return {category: idx + 1  for idx, category in enumerate(classes)}
 
 
 def encode_original_classes(data):
@@ -49,7 +49,6 @@ def map_taco_classes(taco_path: str, mapping_path: str):
     class_mapping = pd.read_csv(mapping_path)
 
     target_encoding = encode_target_classes(class_mapping["new_class"].unique())
-
     target_categories = create_target_categories(target_encoding)
 
     with open(taco_path, "r") as f:
