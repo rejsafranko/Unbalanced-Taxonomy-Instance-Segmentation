@@ -6,7 +6,7 @@ from detectron2.utils.events import get_event_storage # type: ignore
 
 from typing import List
 
-import DynamicLossBalancing
+import MaskRCNNLossBalancer
 
 def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], vis_period: int = 0):
     """
@@ -102,7 +102,7 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], v
         "Straw": 108,
         "Cigarette": 457
     }
-    dlb = DynamicLossBalancing(class_frequencies)
+    dlb = MaskRCNNLossBalancer(class_frequencies)
     mask_loss = dlb.loss_function(pred_mask_logits, gt_masks, recall)
     
     return mask_loss
