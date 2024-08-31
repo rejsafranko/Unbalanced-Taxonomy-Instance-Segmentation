@@ -7,12 +7,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--annotation_path", type=str, required=True)
     parser.add_argument("--mapping_path", type=str, required=True)
+    parser.add_argument("--multimodal", type=bool, required=False, default=False)
     return parser.parse_args()
 
 
-def save_mapped_annotation(data, path: str) -> None:
+def save_mapped_annotation(data, path: str, multimodal:bool) -> None:
     save_path = path.split("/")
-    save_path = f"{save_path[0]}/{save_path[1]}/mapped_{save_path[2]}"
+    if multimodal:
+        save_path = f"{save_path[0]}/{save_path[1]}/multimodal_mapped_{save_path[2]}"
+    else:
+        save_path = f"{save_path[0]}/{save_path[1]}/mapped_{save_path[2]}"
     with open(save_path, "w") as f:
         json.dump(data, f, indent=4)
 
@@ -45,7 +49,7 @@ def encode_class_mappings(mapping, encodings):
     return mapping
 
 
-def map_taco_classes(taco_path: str, mapping_path: str):
+def map_taco_classes(taco_path: str, mapping_path: str, multimodal: bool):
     class_mapping = pd.read_csv(mapping_path)
 
     target_encoding = encode_target_classes(class_mapping["new_class"].unique())
@@ -65,11 +69,11 @@ def map_taco_classes(taco_path: str, mapping_path: str):
     for annotation in taco_data["annotations"]:
         annotation["category_id"] = class_mapping[annotation["category_id"]]
 
-    save_mapped_annotation(taco_data, taco_path)
+    save_mapped_annotation(taco_data, taco_path, multimodal)
 
 
 def main(args):
-    map_taco_classes(args.annotation_path, args.mapping_path)
+    map_taco_classes(args.annotation_path, args.mapping_path, args.multimodal)
 
 
 if __name__ == "__main__":
