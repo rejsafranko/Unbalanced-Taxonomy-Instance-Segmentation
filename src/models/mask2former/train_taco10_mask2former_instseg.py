@@ -40,7 +40,7 @@ def configure_model(config_file: str):
     cfg.SOLVER.CLIP_GRADIENTS.CLIP_VALUE = 1.0
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.0001
-    cfg.SOLVER.MAX_ITER = 500
+    cfg.SOLVER.MAX_ITER = 60000
     cfg.SOLVER.STEPS = []
     return cfg
 
