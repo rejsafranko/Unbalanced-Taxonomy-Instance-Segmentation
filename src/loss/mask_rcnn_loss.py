@@ -1,3 +1,6 @@
+import torch
+from torch import cat
+
 @torch.jit.unused
 def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], loss_balancer: MaskRCNNLossBalancer, vis_period: int = 0):
     """
@@ -54,6 +57,5 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], l
     storage = get_event_storage()
     storage.put_scalar("mask_rcnn/accuracy", mask_accuracy)
 
-    # Izračun gubitka uz korištenje prilagođenih težina
     mask_loss = loss_balancer.loss_function(pred_mask_logits, gt_masks)
     return mask_loss

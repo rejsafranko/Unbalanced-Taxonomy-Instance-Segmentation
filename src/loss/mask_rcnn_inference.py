@@ -1,3 +1,6 @@
+import torch
+from torch import cat
+
 def mask_rcnn_inference(pred_mask_logits: torch.Tensor, pred_instances: List[Instances]):
     """
     Convert pred_mask_logits to estimated foreground probability masks while also

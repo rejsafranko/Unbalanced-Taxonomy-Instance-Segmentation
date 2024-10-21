@@ -32,7 +32,6 @@ class CustomBaseMaskRCNNHead(nn.Module):
 
     @classmethod
     def from_config(cls, cfg, input_shape):
-        # Podesite ovdje potrebne parametre iz konfiguracije
         return {
             "vis_period": cfg.VIS_PERIOD,
         }

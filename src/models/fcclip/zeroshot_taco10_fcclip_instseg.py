@@ -1,16 +1,44 @@
 import argparse
 import pickle
 
-import fcclip
+import os
+import torch
+import detectron2
+from detectron2.engine import DefaultPredictor, DefaultTrainer
+from detectron2.data.datasets import load_coco_json
+from detectron2.evaluation import inference_on_dataset
+from detectron2.data import build_detection_test_loader
+from detectron2.projects.deeplab import add_deeplab_config
+from detectron2.evaluation import COCOEvaluator
+from fcclip import (
+    InstanceSegEvaluator,
+    MaskFormerInstanceDatasetMapper,
+    add_maskformer2_config,
+    add_fcclip_config,
+)
 
-import detectron2  # type: ignore
-import detectron2.engine  # type: ignore
-import detectron2.data # type: ignore
-import detectron2.evaluation  # type: ignore
-import detectron2.data  # type: ignore
-import detectron2.projects.deeplab # type: ignore
-from detectron2.evaluation import COCOEvaluator  # type: ignore
-
+PROMPTS = [
+    "A discarded {} found on the ground.",
+    "A {} lying among scattered trash.",
+    "A {} left as litter in the street.",
+    "A photo of a {} thrown away in a public space.",
+    "A crumpled {} lying near other garbage.",
+    "A {} mixed with other debris on the ground.",
+    "A broken {} discarded in the environment.",
+    "This is a {} among other littered objects.",
+    "A small {} found discarded in a cluttered area.",
+    "A {} partially covered by other trash in the scene.",
+    "A large {} lying near a pile of garbage.",
+    "A weathered {} discarded on the side of the road.",
+    "A crushed {} among other waste on the street.",
+    "A {} that has been thrown away and left as litter.",
+    "A {} carelessly discarded in a public park.",
+    "A {} found among a variety of litter in this scene.",
+    "A {} thrown into the corner of a littered area.",
+    "This is a {} abandoned as trash in the environment.",
+    "A {} lying in a heap of litter, partially hidden.",
+    "A photo of a {} found on the sidewalk among other debris."
+]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -73,14 +101,11 @@ def main(args):
     detectron2.data.MetadataCatalog.get("taco10_test").set(
         json_file=f"{args.data_path}mapped_annotations_0_test.json"
     )
-    test_loader = detectron2.data.build_detection_test_loader(
-        cfg,
-        dataset_name="taco10_test",
-        mapper=fcclip.MaskFormerInstanceDatasetMapper(cfg, is_train=False),
-    )
-    evaluator = detectron2.evaluation.COCOEvaluator(
-        "taco10_test", output_dir="./output"
-    )
+    
+    evaluator = InstanceSegEvaluator("taco10_test",output_dir="./output")
+
+    test_loader = build_detection_test_loader(cfg, dataset_name="taco10_test", mapper=MaskFormerInstanceDatasetMapper(cfg, is_train=False))
+
     detectron2.evaluation.inference_on_dataset(predictor.model, test_loader, evaluator)
 
     with open("logs/inference_results.pkl", "rb") as f:

@@ -12,9 +12,6 @@ class MaskRCNNLossBalancer:
         self.class_weights = self.total_samples / class_frequencies_tensor
 
     def update_weights(self, recalls):
-        """
-        Ova metoda ažurira težine na temelju trenutnog `recall` za svaku klasu.
-        """
         class_frequencies_tensor = torch.tensor(
             list(self.class_frequencies.values()), dtype=torch.float32
         )
@@ -29,9 +26,7 @@ class MaskRCNNLossBalancer:
             raise ValueError("Targets contain NaN ili Inf values.")
 
         if self.class_weights is None:
-            raise ValueError(
-                "Class weights have not been initialized. Call update_weights first."
-            )
+            raise ValueError("Class weights have not been initialized. Call update_weights first.")
 
         dynamic_weights = self.class_weights.to(targets.device)
         class_weights = dynamic_weights[targets.long()]

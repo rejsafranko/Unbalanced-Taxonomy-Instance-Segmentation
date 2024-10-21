@@ -28,14 +28,14 @@ def configure_model():
     )
     cfg.DATASETS.TRAIN = (f"taco10_train",)
     cfg.DATASETS.TEST = (f"taco10_val",)
-    cfg.TEST.EVAL_PERIOD = 100
+    cfg.TEST.EVAL_PERIOD = 9000
     cfg.DATALOADER.NUM_WORKERS = 2
     cfg.MODEL.WEIGHTS = detectron2.model_zoo.get_checkpoint_url(
         "models/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
     )
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.001
-    cfg.SOLVER.MAX_ITER = 100
+    cfg.SOLVER.MAX_ITER = 36000
     cfg.SOLVER.STEPS = []
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10
