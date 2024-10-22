@@ -16,7 +16,7 @@ In the first part of the thesis, a detailed evaluation of classical models such 
 
 ![m2f](m2f.jpg)
 
-### Instance segmentation model with language embeddings
+## Instance segmentation model with language embeddings
 
 In the second part of the thesis, the FC-CLIP model with language embeddings was investigated. It combines visual and textual information for zero-shot instance segmentation. FC-CLIP uses the CLIP model as it's backbone and demonstrated interesting results in instance segmentation with richer hand-created prompts, suggesting the need for further adjustments and exploration. The thesis offers insights into the advantages and disadvantages of different segmentation models and highlights the importance of tailoring models to specific tasks and datasets.
 
