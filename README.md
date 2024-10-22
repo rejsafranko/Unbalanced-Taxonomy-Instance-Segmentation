@@ -1,6 +1,6 @@
 # Unbalanced Taxonomy Instance Segmentation (Master's Thesis)
 
-This is a code repository for my Master's thesis which explores different approaches to instance segmentation in computer vision, with a special focus on conventional deep learning models and models which use language embeddings. For more details check out ```thesis.pdf```.
+This is a code repository for my Master's thesis which explores different approaches to instance segmentation in computer vision, with a special focus on conventional deep learning models and models which use language embeddings. For more details and results check out ```thesis.pdf```.
 
 ![taco](taco.webp.avif)
 
